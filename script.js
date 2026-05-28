@@ -982,7 +982,7 @@ ${currentLang === 'zh' ? '中文' : 'English'}
 
     const response =
     await fetch(
-    "https://openrouter.ai/api/v1/chat/completions",
+    "/api/reading",
     {
         method:"POST",
 
@@ -990,8 +990,6 @@ ${currentLang === 'zh' ? '中文' : 'English'}
 
             "Content-Type":"application/json",
 
-            "Authorization":
-            "Bearer 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"
         },
 
         body:JSON.stringify({
