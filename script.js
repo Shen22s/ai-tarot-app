@@ -991,7 +991,7 @@ ${currentLang === 'zh' ? '中文' : 'English'}
             "Content-Type":"application/json",
 
             "Authorization":
-            "Bearer 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"
+            "Bearer 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"
         },
 
         body:JSON.stringify({
