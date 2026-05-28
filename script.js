@@ -1074,18 +1074,6 @@ readingContent.innerHTML =
 "❌ AI 请求失败";
 
 }
-const data =
-await response.json();
-
-console.log(data);
-
-const text =
-data.choices[0]
-.message.content;
-
-readingContent.innerHTML =
-text.replace(/\n/g,"<br>");
-
 
 document
 .getElementById("close-reading")
