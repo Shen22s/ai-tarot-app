@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 视觉塔罗牌占卜 | AI Visual Tarot</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #0d0a1a;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        /* 🌐 语言切换按钮样式 */
+        #lang-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(106, 69, 179, 0.3);
+            border: 1px solid #9d73d9;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            z-index: 100;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        #lang-btn:hover {
+            background: #6a45b3;
+            box-shadow: 0 0 10px rgba(157, 115, 217, 0.5);
+        }
+
+        #canvas {
+            background: radial-gradient(circle, #1a153a 0%, #0d0a1a 100%);
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            display: none;
+        }
+
+        /* 对话框遮罩层 */
+        #dialog-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(13, 10, 26, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            backdrop-filter: blur(8px);
+        }
+
+        /* 对话框主体 */
+        #dialog-box {
+            background: linear-gradient(145deg, #1f1a3a, #130f26);
+            border: 2px solid #6a45b3;
+            border-radius: 16px;
+            padding: 30px;
+            width: 420px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(106, 69, 179, 0.3);
+            color: #e0dcf2;
+        }
+        #dialog-box h2 {
+            margin-top: 0;
+            color: #b39ddb;
+            letter-spacing: 2px;
+        }
+        #dialog-box p {
+            font-size: 14px;
+            color: #aaa4c5;
+        }
+
+        /* 输入框组合 */
+        #question-container {
+            display: flex;
+            margin: 25px 0 15px 0;
+            gap: 10px;
+        }
+        #question-input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #4a3b75;
+            background-color: #0d0a1a;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+        #question-input:focus {
+            border-color: #9d73d9;
+            box-shadow: 0 0 8px rgba(157, 115, 217, 0.5);
+        }
+        #random-btn {
+            background: #312652;
+            border: 1px solid #53408c;
+            color: white;
+            padding: 0 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+        #random-btn:hover { background: #4a3b75; }
+
+        /* 快捷标签 */
+        .tags {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+        .tag {
+            background: rgba(106, 69, 179, 0.15);
+            border: 1px solid rgba(157, 115, 217, 0.3);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+        .tag:hover {
+            background: rgba(106, 69, 179, 0.4);
+            border-color: #9d73d9;
+            color: #fff;
+        }
+
+        /* 开始占卜按钮 */
+        #start-btn {
+            background: linear-gradient(90deg, #6a45b3, #8e2de2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(142, 45, 226, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        #start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(142, 45, 226, 0.6);
+        }
+        #reading-box{
+
+            position:fixed;
+
+            left:50%;
+            top:50%;
+
+            transform:translate(-50%,-50%);
+
+            width:500px;
+
+            max-height:70vh;
+
+            overflow:auto;
+
+            background:
+            rgba(10,10,20,0.96);
+
+            border:
+            1px solid gold;
+
+            padding:30px;
+
+            border-radius:20px;
+
+            color:white;
+
+            z-index:999;
+
+            display:none;
+
+            box-shadow:
+            0 0 40px rgba(255,215,0,0.35);
+    }
+
+    #reading-content{
+
+        line-height:1.8;
+
+        font-size:15px;
+    }
+
+    #close-reading{
+
+        margin-top:20px;
+
+        padding:10px 20px;
+
+        background:black;
+
+        color:gold;
+
+        border:1px solid gold;
+
+        cursor:pointer;
+    }
+    </style>
+</head>
+<body>
+
+    <button id="lang-btn">English</button>
+
+    <div id="dialog-overlay">
+        <div id="dialog-box">
+            <h2 data-i18n="title">🔮 开启你的塔罗占卜</h2>
+            <p data-i18n="subtitle">请在心中默想你的问题，或选择/输入下方的问题：</p>
+            
+            <div id="question-container">
+                <input type="text" id="question-input" placeholder="输入你想问的问题...">
+                <button id="random-btn" title="随机换个问题">🎲</button>
+            </div>
+
+            <div class="tags">
+                <span class="tag" data-tag-idx="0"></span>
+                <span class="tag" data-tag-idx="1"></span>
+                <span class="tag" data-tag-idx="2"></span>
+            </div>
+
+            <button id="start-btn" data-i18n="startBtn">契约结成，开始占卜</button>
+        </div>
+    </div>
+
+    <canvas id="canvas" width="800" height="800"></canvas>
+    <div id="reading-box">
+
+        <div id="reading-content"></div>
+
+        <button id="close-reading">
+        ✨ Close
+        </button>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
